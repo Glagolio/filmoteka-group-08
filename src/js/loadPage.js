@@ -19,5 +19,7 @@ fetchFilms(KEY, MEDIA_TYPE, TIME_WINDOW).then(({ results }) => {
   console.log(results);
   storage.save('movies', results);
   document.body.innerHTML = movieCards(results);
+    console.log(movieCards(results));
+
 });
 
