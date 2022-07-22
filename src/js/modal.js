@@ -1,5 +1,5 @@
 import storage from './storage';
-
+const values = storage.load('arrow');
 const backdrop = document.querySelector('[data-modal]');
 const closeButton = document.querySelector('[data-modal-close]');
 const cardsContainer = document.querySelector('.movies-container');
@@ -40,7 +40,8 @@ function openModal(movieId) {
   document.addEventListener('keydown', pressEsc);
 
   backdrop.querySelector('.modal-movie').dataset.modalMovieId = movieId;
-  backdrop.querySelector('.modal-movie').innerHTML = getModalMovieMarkup(movieId);
+  backdrop.querySelector('.modal-movie').innerHTML =
+    getModalMovieMarkup(movieId);
   document.body.style.overflow = 'hidden';
   backdrop.classList.remove('is-hidden');
   // const { vote_average } =
@@ -76,17 +77,30 @@ function getModalMovieMarkup(movieId) {
     poster_path,
     title,
     original_title,
-    genres_ids,
+    genre_ids,
     release_date,
     vote_average,
     vote_count,
     popularity,
     overview,
   } = currentMovie;
-
+  const genreArr = [];
+  let other = '';
+  for (const genreId of genre_ids) {
+    for (const value of values) {
+      if (genreId === value.id) {
+        genreArr.push(value.name);
+        if (genre_ids.length > 2) {
+          other = ',Other';
+        }
+      }
+    }
+  }
   movieId = movieId.toString();
 
-  let addedClass = isInLibrary('watched-list', movieId.toString()) ? 'added' : '';
+  let addedClass = isInLibrary('watched-list', movieId.toString())
+    ? 'added'
+    : '';
   const btnAddToWatched = `<div class="modal-movie__btn movie-btn movie-btn--watched ${addedClass}" data-modal-add-to="watched">
                           <div class="movie-btn__inner">
                             <button class="remove">REMOVE FROM<br>WATCHED</button>
@@ -111,14 +125,18 @@ function getModalMovieMarkup(movieId) {
                     <tr>
                         <td class="movie-table__title">Vote / Votes</td>
                         <td class="movie-table__info">
-                            <span id="out" class="vote">${vote_average.toFixed(1)}</span>
+                            <span id="out" class="vote">${vote_average.toFixed(
+                              1
+                            )}</span>
                             <span>/</span>
                             <span class="votes">${vote_count}</span>
                         </td>
                     </tr>
                     <tr>
                         <td class="movie-table__title">Popularity</td>
-                        <td class="movie-table__info">${popularity.toFixed(0)}</td>
+                        <td class="movie-table__info">${popularity.toFixed(
+                          0
+                        )}</td>
                     </tr>
                     <tr>
                         <td class="movie-table__title">Original Title</td>
@@ -126,7 +144,7 @@ function getModalMovieMarkup(movieId) {
                     </tr>
                     <tr>
                         <td class="movie-table__title">Genre</td>
-                        <td class="movie-table__info">${genres_ids}</td>
+                        <td class="movie-table__info">${genreArr}</td>
                     </tr>
                 </table>
                 <div class="modal-movie__box">
@@ -159,7 +177,10 @@ function addMovieToLibrary(button) {
   if (storage.load(key) && isInLibrary(key, value.id.toString())) {
     removeFromStorage(key, value, button);
   } else {
-    if (key.includes('watch') && isInLibrary('queue-list', value.id.toString())) {
+    if (
+      key.includes('watch') &&
+      isInLibrary('queue-list', value.id.toString())
+    ) {
       console.log('already in queue');
       removeFromStorage(
         'queue-list',
@@ -186,7 +207,9 @@ function removeFromStorage(key, value, button) {
 }
 
 function isInLibrary(storageKey, valueId) {
-  return storage.load(storageKey)?.some(movie => movie.id.toString() === valueId);
+  return storage
+    .load(storageKey)
+    ?.some(movie => movie.id.toString() === valueId);
 }
 
 function outNum(num, elem) {
