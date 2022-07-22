@@ -70,7 +70,7 @@ const values = storage.load('arrow');
         return `<li class="home-card js-modal-open" data-card-movie-id="${id}">
             <a href="#" class="home-card__link">
                 <div class="card-info">
-                    <img class="home-card__img" src="${imgUrl}" alt="${title}">
+                    <img loading="lazy" src="${imgUrl}" data-src="${imgUrl}" data-src="${imgUrl}" alt="${title}" class="home-card__img lazyload" />
                     <h2 class="card-info__title">${original_title || original_name}</h2>
                     <p class="card-info_descr">
                         <span>${genreArr.splice(0, 3)}  ${other}</span>
@@ -85,5 +85,5 @@ const values = storage.load('arrow');
     )
     .join('');
   storage.save('movies', results);
-  homeList.insertAdjacentHTML('beforeend', mark);
+    homeList.insertAdjacentHTML('beforeend', mark);
 });

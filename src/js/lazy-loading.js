@@ -1,6 +1,3 @@
-// import loadPage from './loadPage';
-// import { fetchFilms } from './loadPage';
-
 // 1. Для кожного зображення додати loading='lazy'
 // 2. Для того, щоб працювало в усіх браузерах, потрібна бібліотека lazysizes(знайти на git hub)
 // можна використати CDN lazysizes.min.js  , додати скрипт динамічно
@@ -13,10 +10,10 @@
 // Feature detection
 if ('loading' in HTMLImageElement.prototype) {
     console.log('Браузер підтримує lazyload');
-    const lazyImages = document.querySelectorAll('image[loading="lazy"]');
-    lazyImages.forEach(image => {
-        image.src = image.dataset.src;
-    });
+    // const images = document.querySelectorAll('img[data-src]');
+    // images.forEach(img => {
+    //     img.src = img.dataset.src;
+    // });
 // supported in browser
 } else {
     console.log('Браузер не підтримує lazyload');
@@ -29,7 +26,7 @@ if ('loading' in HTMLImageElement.prototype) {
 // fetch polyfill/third-party library
 }
 
-const lazyImages = document.querySelectorAll('image[data-src]');
+const lazyImages = document.querySelectorAll('img[loading="lazy"]');
     console.log(lazyImages);
 
     lazyImages.forEach(image => {
