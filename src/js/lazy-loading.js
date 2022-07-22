@@ -5,6 +5,7 @@
 // - src замінити на data-src
 // 3. видаляємо слухача за допомогою 'once'(підтримується майже всіма браузерами), додається в опції. Після того як
 // addEventListener спрацює один раз, він самовидалиться
+
 document.addEventListener('DOMContentLoaded', lazyLoadingImages());
 
 export default function lazyLoadingImages() {
