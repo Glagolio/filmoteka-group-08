@@ -1,9 +1,18 @@
 import storage from './storage';
-import {POPULAR_STORAGE_KEY, STORAGE_MOVIES_SEARCH, storageLastSearchText ,STORAGE_PAGE_KEY} from './pageInStorage';
+import {
+  POPULAR_STORAGE_KEY,
+  STORAGE_MOVIES_SEARCH,
+  storageLastSearchText,
+  STORAGE_PAGE_KEY,
+} from './pageInStorage';
 
-import { storagePage,STORAGE_MOVIES_SEARCH,storageLastSearchText } from './pageInStorage';
+import {
+  storagePage,
+  STORAGE_MOVIES_SEARCH,
+  storageLastSearchText,
+} from './pageInStorage';
 import { removeSceletonLoad } from './sceletonLoad';
-
+const values = storage.load('arrow');
 const formField = document.querySelector('.form-field');
 const homeList = document.querySelector('.home-list');
 const spinner = document.querySelector('.spinner-loader');
@@ -14,7 +23,7 @@ formField?.addEventListener('submit', event => {
   event.preventDefault();
   textError.classList.add('is-hidden');
   spinner.classList.remove('is-hidden');
-  movieName = formField.elements.query.value.trim(); 
+  movieName = formField.elements.query.value.trim();
   storage.remove(POPULAR_STORAGE_KEY);
   if (movieName === '') {
     spinner.classList.add('is-hidden');
@@ -26,49 +35,86 @@ formField?.addEventListener('submit', event => {
       textError.classList.remove('is-hidden');
       return;
     }
-    storage.save(STORAGE_MOVIES_SEARCH,{movie: movieName});
+    storage.save(STORAGE_MOVIES_SEARCH, { movie: movieName });
     storage.save('movies', movies);
     homeList.innerHTML = movieCards(movies);
-   setTimeout(() => { spinner.classList.add('is-hidden') }, 2000);
+    setTimeout(() => {
+      spinner.classList.add('is-hidden');
+    }, 2000);
     removeSceletonLoad();
   });
 });
 
 export function movieCards(movies) {
   return movies
-    .map(({ id, poster_path, title, original_title, genres_ids, release_date }) => {
-      const imgUrl = poster_path
-        ? `https://image.tmdb.org/t/p/w500${poster_path}`
-        : // : './images/netuNichego.png';
-          'https://via.placeholder.com/395x574/FFFFFF/FF001B?text=No+poster';
-      const year = new Date(release_date).getFullYear();
-      return `<li class="home-card js-modal-open placeholdify" data-card-movie-id="${id}">
+    .map(
+      ({
+        id,
+        poster_path,
+        title,
+        original_title,
+        genre_ids,
+        release_date,
+        original_name,
+        first_air_date,
+      }) => {
+        const genreArr = [];
+        let other = '';
+        for (const genreId of genre_ids) {
+          for (const value of values) {
+            if (genreId === value.id) {
+              genreArr.push(value.name);
+              if (genre_ids.length > 2) {
+                other = ',Other';
+              }
+            }
+          }
+        }
+        let a = release_date;
+
+        let b = first_air_date;
+        if (release_date) {
+          a = a.slice(0, 4);
+        }
+        if (first_air_date) {
+          b = b.slice(0, 4);
+        }
+        const imgUrl = poster_path
+          ? `https://image.tmdb.org/t/p/w500${poster_path}`
+          : // : './images/netuNichego.png';
+            'https://via.placeholder.com/395x574/FFFFFF/FF001B?text=No+poster';
+
+        return `<li class="home-card js-modal-open placeholdify" data-card-movie-id="${id}">
             <a href="#" class="home-card__link">
                 <div class="card-info">
                     <img class="home-card__img" src="${imgUrl}" alt="${title}">
-                    <h2 class="card-info__title">${original_title}</h2>
+                    <h2 class="card-info__title">${
+                      original_title || original_name
+                    }</h2>
                     <p class="card-info_descr">
-                        <span>${genres_ids}</span>
+                        <span>${genreArr.splice(0, 2)}  ${other}</span>
+                        
                         |
-                        <span>${year}</span>
+                        <span>${a || b}</span>
                     </p>
                 </div>
             </a>
         </li>`;
-    })
+      }
+    )
     .join('');
 }
-   
- 
 
-async function fetchMovies(movieName,page) {
+async function fetchMovies(movieName, page) {
   const searchParams = new URLSearchParams({
     api_key: '659c146febfafc17fd54baa17527f7fa',
     language: 'en-US',
     query: movieName,
   });
 
-  return fetch(`https://api.themoviedb.org/3/search/movie?${searchParams}&page=${page}`)
+  return fetch(
+    `https://api.themoviedb.org/3/search/movie?${searchParams}&page=${page}`
+  )
     .then(res => {
       if (res.ok) {
         return res.json();
@@ -80,32 +126,29 @@ async function fetchMovies(movieName,page) {
         movies: data.results,
       };
     });
-      
 }
-
 
 //load last page search
 export function loadFetchMivies(currentPage) {
-    textError.classList.add('is-hidden');
-    spinner.classList.remove('is-hidden');
-    movieName = storageLastSearchText?.movie;
-    storage.save(STORAGE_PAGE_KEY, { value: currentPage });
-    if (movieName === '') {
+  textError.classList.add('is-hidden');
+  spinner.classList.remove('is-hidden');
+  movieName = storageLastSearchText?.movie;
+  storage.save(STORAGE_PAGE_KEY, { value: currentPage });
+  if (movieName === '') {
+    spinner.classList.add('is-hidden');
+    return alert('Empty field');
+  }
+  fetchMovies(movieName, currentPage).then(({ movies }) => {
+    if (movies.length === 0) {
       spinner.classList.add('is-hidden');
-      return alert('Empty field');
+      textError.classList.remove('is-hidden');
+      return;
     }
-    fetchMovies(movieName, currentPage).then(({ movies }) => {
-      if (movies.length === 0) {
-        spinner.classList.add('is-hidden');
-        textError.classList.remove('is-hidden');
-        return;
-      }
-      storage.save('movies', movies);
-      homeList.innerHTML = movieCards(movies);
-     setTimeout(() => { spinner.classList.add('is-hidden') }, 2000);
-     removeSceletonLoad();    
-    });
-  };
-
- 
-
+    storage.save('movies', movies);
+    homeList.innerHTML = movieCards(movies);
+    setTimeout(() => {
+      spinner.classList.add('is-hidden');
+    }, 2000);
+    removeSceletonLoad();
+  });
+}
