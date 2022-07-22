@@ -1,4 +1,5 @@
 import storage from './storage';
+import lazyLoadingImages from './lazy-loading';
 const KEY = '659c146febfafc17fd54baa17527f7fa';
 const homeList = document.querySelector('.home-list');
 
@@ -26,7 +27,7 @@ fetchGenres().then(({ genres }) => {
 const values = storage.load('arrow');
 
 
-  fetchFilms(API_URL_POPULAR).then(({ results }) => {
+fetchFilms(API_URL_POPULAR).then(({ results }) => {
 
   results.poster_path;
 
@@ -85,5 +86,7 @@ const values = storage.load('arrow');
     )
     .join('');
   storage.save('movies', results);
-    homeList.insertAdjacentHTML('beforeend', mark);
+  homeList.insertAdjacentHTML('beforeend', mark);
+  lazyLoadingImages();
 });
+

@@ -5,16 +5,15 @@
 // - src замінити на data-src
 // 3. видаляємо слухача за допомогою 'once'(підтримується майже всіма браузерами), додається в опції. Після того як
 // addEventListener спрацює один раз, він самовидалиться
+document.addEventListener('DOMContentLoaded', lazyLoadingImages());
 
-
-// Feature detection
+export default function lazyLoadingImages() {
 if ('loading' in HTMLImageElement.prototype) {
     console.log('Браузер підтримує lazyload');
-    // const images = document.querySelectorAll('img[data-src]');
+        // const images = document.querySelectorAll('img[data-src]');
     // images.forEach(img => {
     //     img.src = img.dataset.src;
     // });
-// supported in browser
 } else {
     console.log('Браузер не підтримує lazyload');
     const script = document.createElement('script');
@@ -23,18 +22,17 @@ if ('loading' in HTMLImageElement.prototype) {
     script.crossOrigin = 'anonymous';
     script.referrerpolicy = 'no-referrer';
     document.body.appendChild(script);
-// fetch polyfill/third-party library
-}
-
-const lazyImages = document.querySelectorAll('img[loading="lazy"]');
+    }
+        const lazyImages = document.querySelectorAll('img[loading="lazy"]');
     console.log(lazyImages);
 
     lazyImages.forEach(image => {
     image.addEventListener('load', onImageLoaded, { once: true });
-});
+    });
 
-function onImageLoaded(event) {
+    function onImageLoaded(event) {
     console.log("Зображення завантажилось");
 // можна додати класс, анімацію і тд
 // event.target.classList.add();
+}
 }
